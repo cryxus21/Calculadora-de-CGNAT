@@ -23,6 +23,7 @@ class MainWindow(QMainWindow,Ui_MainWindow):
         self.spinBox.setMaximum(999)
         self.label_7.setStyleSheet("background-color: green; color: white;")
         self.label_6.setStyleSheet("background-color: red; color: white;")
+        
         for button in self.buttonGroup.buttons():
             button.setEnabled(False)
 
@@ -49,12 +50,29 @@ class MainWindow(QMainWindow,Ui_MainWindow):
 
 
     def calculate_result(self, divisor):
-                self.pushButton.setEnabled(True)
-                resultado_quant_ip = int(self.quantidade_portas / divisor)
-                self.resultado_ip = resultado_quant_ip
-                self.clientes_ip = divisor
+            self.pushButton.setEnabled(True)
+            resultado_quant_ip = int(self.quantidade_portas / divisor)
+            self.resultado_ip = resultado_quant_ip
+            self.clientes_ip = divisor
                   
-    
+                  
+                  
+    def marcado_check_box_nat(self):
+        if self.checkBoxNat.isChecked():
+            self.resultado_check_box = "disabled=yes"
+            
+        else:
+            self.resultado_check_box = ""
+        return self.resultado_check_box
+            
+    def marcado_check_box_jump(self):
+        if self.checkBoxJump.isChecked():
+            self.resultado_check_box = "disabled=yes"
+            
+        else:
+            self.resultado_check_box = ""
+        return self.resultado_check_box  
+            
     def geradorcgnat(self, resultado_quant_ip):
         def calcular_quantidade_ips(cidr):
             bits_host = 32 - int(cidr)
@@ -67,7 +85,7 @@ class MainWindow(QMainWindow,Ui_MainWindow):
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Warning)
             msg_box.setWindowTitle("Erro")
-            msg_box.setText("Endereço IP e máscara inválidos.")
+            msg_box.setText("Endereço IP e/ou máscara  do IP Privado inválidos.")
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec_()
             return
@@ -78,18 +96,27 @@ class MainWindow(QMainWindow,Ui_MainWindow):
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Warning)
             msg_box.setWindowTitle("Erro")
-            msg_box.setText("Endereço IP e máscara inválidos.")
+            msg_box.setText("Endereço IP e/ou máscara  do IP Privado inválidos.")
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec_()
             return
         # verifica se foi digitado no formato correto
         ip_mascara_publico = self.Rede_pub.text().strip()
+        if not ip_mascara_publico or '/' not in ip_mascara_publico:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setWindowTitle("Erro")
+            msg_box.setText("Endereço IP e/ou máscara do IP Publico inválidos.")
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.exec_()
+            return
+        
         ip_publico, mascara_publico = ip_mascara_publico.split('/')
         if not ip_publico or not mascara_publico:
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Warning)
             msg_box.setWindowTitle("Erro")
-            msg_box.setText("Endereço IP e máscara inválidos.")
+            msg_box.setText("Endereço IP e/ou máscara  do IP Privado inválidos.")
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec_()
             return
@@ -172,7 +199,7 @@ class MainWindow(QMainWindow,Ui_MainWindow):
         quantidade_ips_publico = calcular_quantidade_ips(mascara_publico)
         total_de_ip = quantidade_ips_publico * self.clientes_ip
 
-        print("total de ip = " + str(total_de_ip) + " ip privados = " + str(quantidade_ips_privado))
+        #print("total de ip = " + str(total_de_ip) + " ip privados = " + str(quantidade_ips_privado))
         chain = self.spinBox.value()
         protocolo1 = 'tcp'
         protocolo2 = 'udp'
@@ -185,6 +212,9 @@ class MainWindow(QMainWindow,Ui_MainWindow):
         resultado_nat = ''
         resultado_jumping = ''
         interface_up_link = self.int_up_link.text()
+        resultado_check_nat = self.marcado_check_box_nat()
+        resultado_check_jump = self.marcado_check_box_jump()
+
         if not  publico_octetos:
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Warning)
@@ -200,57 +230,59 @@ class MainWindow(QMainWindow,Ui_MainWindow):
                 contador += 1
                 ipprivadoFull = f"{privado_octeto1}.{privado_octeto2}.{privado_octeto3}.{privado_octeto4}"
                 ip_publico_full = f"{publico_octeto1}.{publico_octeto2}.{publico_octeto3}"
-
+                
                 resultado_nat += (
-                    f"ip firewall nat add chain=CGNAT_{chain} src-address={ipprivadoFull} protocol={protocolo1} out-interface={interface_up_link} action=src-nat to-addresses={ip_publico_full}.{publico_octeto4} to-ports={portainicial}-{portainicial2} disable=yes\n"
+                    f"ip firewall nat add chain=CGNAT_{chain} src-address={ipprivadoFull} protocol={protocolo1} out-interface={interface_up_link} action=src-nat to-addresses={ip_publico_full}.{publico_octeto4} to-ports={portainicial}-{portainicial2} {resultado_check_nat}\n"
                 )
                 resultado_nat += (
-                    f"ip firewall nat add chain=CGNAT_{chain} src-address={ipprivadoFull} protocol={protocolo2} out-interface={interface_up_link} action=src-nat to-addresses={ip_publico_full}.{publico_octeto4} to-ports={portainicial}-{portainicial2} disable=yes\n\n"
+                    f"ip firewall nat add chain=CGNAT_{chain} src-address={ipprivadoFull} protocol={protocolo2} out-interface={interface_up_link} action=src-nat to-addresses={ip_publico_full}.{publico_octeto4} to-ports={portainicial}-{portainicial2} {resultado_check_nat}\n\n"
                 )
+                #resultado_nat += resultado_check
+                
                 if int(portainicial) == 1024:
                         if int(intervaloporta) == 1007:
                             resultado_jumping +=(
-                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/26 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link}\n"
+                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/26 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link} {resultado_check_jump}\n"
                             )
                         if int(intervaloporta) == 2015:
                             resultado_jumping +=(
-                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/27 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link}\n"
+                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/27 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link} {resultado_check_jump}\n"
                             )
                         if int(intervaloporta) == 4031:
                             resultado_jumping +=(
-                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/28 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link}\n"
+                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/28 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link} {resultado_check_jump}\n"
                             )
                         if int(intervaloporta) == 8063:
                             resultado_jumping +=(
-                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/29 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link}\n"
+                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/29 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link} {resultado_check_jump}\n"
                             )
                         if int(intervaloporta) == 16127:
                             resultado_jumping +=(
-                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/30 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link}\n"
+                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/30 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link} {resultado_check_jump}\n"
                             )
                         
                 if int(portainicial) == 0:
                     if int(intervaloporta) == 1023:
                             resultado_jumping +=(
-                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/26 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link}\n"
+                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/26 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link} {resultado_check_jump}\n"
                             )
                     if int(intervaloporta) == 2047:
                             resultado_jumping +=(
-                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/27 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link}\n"
+                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/27 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link} {resultado_check_jump}\n"
                             )
                     if int(intervaloporta) == 4095:
                             resultado_jumping +=(
-                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/28 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link}\n"
+                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/28 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link} {resultado_check_jump}\n"
                             )
                     if int(intervaloporta) == 8191:
                             resultado_jumping +=(
-                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/29 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link}\n"
+                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/29 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link} {resultado_check_jump}\n"
                             )
                     if int(intervaloporta) == 16383:
                             resultado_jumping +=(
-                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/30 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link}\n"
+                                f"ip firewall nat add chain=srcnat src-address={ipprivadoFull}/30 action=jump jump-target=CGNAT_{chain} out-interface={interface_up_link} {resultado_check_jump}\n"
                             )
-
+                                          
 
                 privado_octeto4 = str(int(privado_octeto4) + 1)
                 portainicial = str(int(portainicial) + intervaloporta + 1)
