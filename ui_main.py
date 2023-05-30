@@ -15,9 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QButtonGroup, QLabel, QLineEdit,
-    QMainWindow, QPushButton, QRadioButton, QSizePolicy,
-    QSpinBox, QStatusBar, QTextBrowser, QWidget)
+from PySide6.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QLabel,
+    QLineEdit, QMainWindow, QPushButton, QRadioButton,
+    QSizePolicy, QSpinBox, QStatusBar, QTextBrowser,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -96,7 +97,7 @@ class Ui_MainWindow(object):
         self.label.setFont(font)
         self.spinBox = QSpinBox(self.centralwidget)
         self.spinBox.setObjectName(u"spinBox")
-        self.spinBox.setGeometry(QRect(30, 360, 38, 20))
+        self.spinBox.setGeometry(QRect(30, 340, 38, 20))
         self.spinBox.setFont(font)
         self.int_up_link = QLineEdit(self.centralwidget)
         self.int_up_link.setObjectName(u"int_up_link")
@@ -129,7 +130,7 @@ class Ui_MainWindow(object):
         self.label_7.setGeometry(QRect(220, 50, 111, 16))
         self.label_9 = QLabel(self.centralwidget)
         self.label_9.setObjectName(u"label_9")
-        self.label_9.setGeometry(QRect(30, 330, 121, 16))
+        self.label_9.setGeometry(QRect(80, 340, 121, 16))
         self.label_9.setFont(font)
         self.radioButton_32 = QRadioButton(self.centralwidget)
         self.buttonGroup.addButton(self.radioButton_32)
@@ -139,9 +140,17 @@ class Ui_MainWindow(object):
         self.radioButton_32.setCheckable(True)
         self.pushButton = QPushButton(self.centralwidget)
         self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setGeometry(QRect(30, 390, 381, 61))
+        self.pushButton.setGeometry(QRect(30, 430, 381, 61))
         self.pushButton.setFont(font)
         self.pushButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.checkBoxNat = QCheckBox(self.centralwidget)
+        self.checkBoxNat.setObjectName(u"checkBoxNat")
+        self.checkBoxNat.setGeometry(QRect(210, 380, 141, 17))
+        self.checkBoxNat.setFont(font)
+        self.checkBoxJump = QCheckBox(self.centralwidget)
+        self.checkBoxJump.setObjectName(u"checkBoxJump")
+        self.checkBoxJump.setGeometry(QRect(30, 380, 141, 17))
+        self.checkBoxJump.setFont(font)
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusBar = QStatusBar(MainWindow)
         self.statusBar.setObjectName(u"statusBar")
@@ -186,5 +195,7 @@ class Ui_MainWindow(object):
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"INICIO DA CHAIN", None))
         self.radioButton_32.setText(QCoreApplication.translate("MainWindow", u"32 CLIENTES", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"GERAR", None))
+        self.checkBoxNat.setText(QCoreApplication.translate("MainWindow", u"NAT DESABILITADO", None))
+        self.checkBoxJump.setText(QCoreApplication.translate("MainWindow", u"JUMP DESABILITADO", None))
     # retranslateUi
 
